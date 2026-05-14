@@ -10,6 +10,9 @@ RUN install -d /plugins && \
 # Pin 4.2.x: upstream delayed-exchange v4.2.0 targets RabbitMQ 4.2.x only (4.3+ has no matching release; repo archived).
 FROM rabbitmq:4.2-management
 
+# Management UI bind (e.g. Railway); avoid a custom shell start command.
+COPY rabbitmq/conf.d/20-management-tcp-ip.conf /etc/rabbitmq/conf.d/20-management-tcp-ip.conf
+
 # Copy plugin with proper ownership
 COPY --from=builder --chown=rabbitmq:rabbitmq \
     /plugins/rabbitmq_delayed_message_exchange-4.2.0.ez \
