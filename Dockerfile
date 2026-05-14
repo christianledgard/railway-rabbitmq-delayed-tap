@@ -1,15 +1,13 @@
-# Stage 1: Download the plugin
-FROM ubuntu:20.04 AS builder
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl
-
-RUN mkdir -p /plugins && \
+# Stage 1: Download the plugin (avoid ubuntu:20.04 — EOL and heavy for a single curl)
+FROM curlimages/curl:8.11.1 AS builder
+USER root
+RUN install -d /plugins && \
     curl -fsSL \
-    -o "/plugins/rabbitmq_delayed_message_exchange-4.2.0.ez" \
+    -o /plugins/rabbitmq_delayed_message_exchange-4.2.0.ez \
     https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v4.2.0/rabbitmq_delayed_message_exchange-4.2.0.ez
 
 # Stage 2: Main RabbitMQ image
-# Pin 4.2.x: plugin v4.2.x targets RabbitMQ 4.2; 4.3+ is not yet supported by a plugin release.
+# Pin 4.2.x: upstream delayed-exchange v4.2.0 targets RabbitMQ 4.2.x only (4.3+ has no matching release; repo archived).
 FROM rabbitmq:4.2-management
 
 # Copy plugin with proper ownership
