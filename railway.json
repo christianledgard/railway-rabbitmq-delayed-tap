@@ -5,7 +5,7 @@
     "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": "/bin/sh -c \"echo 127.0.0.1 rabbitmq >> /etc/hosts && echo 'management_agent.disable_metrics_collector = false' > /etc/rabbitmq/conf.d/20-management_agent.disable_metrics_collector.conf && echo 'management.tcp.ip = ::' > /etc/rabbitmq/conf.d/10-defaults.conf && exec docker-entrypoint.sh rabbitmq-server\"",
+    "startCommand": "sleep infinity",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
