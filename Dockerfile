@@ -1,4 +1,4 @@
-# Stage 1: Download the plugin (avoid ubuntu:20.04 — EOL and heavy for a single curl)
+# Stage 1: Download the delayed-message-exchange plugin
 FROM curlimages/curl:8.11.1 AS builder
 USER root
 RUN install -d /plugins && \
@@ -6,22 +6,20 @@ RUN install -d /plugins && \
     -o /plugins/rabbitmq_delayed_message_exchange-4.2.0.ez \
     https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v4.2.0/rabbitmq_delayed_message_exchange-4.2.0.ez
 
-# Stage 2: Main RabbitMQ image
-# Pin 4.2.x: upstream delayed-exchange v4.2.0 targets RabbitMQ 4.2.x only (4.3+ has no matching release; repo archived).
+# Stage 2: RabbitMQ image.
+# Pin 4.2.x: upstream delayed-exchange v4.2.0 targets RabbitMQ 4.2.x only.
+# (4.3.x has no matching plugin release at time of writing.)
 FROM rabbitmq:4.2-management
 
-# Management UI bind (e.g. Railway); avoid a custom shell start command.
-COPY rabbitmq/conf.d/20-management-tcp-ip.conf /etc/rabbitmq/conf.d/20-management-tcp-ip.conf
-
-# Copy plugin with proper ownership
+# Copy the plugin with proper ownership for the rabbitmq user.
 COPY --from=builder --chown=rabbitmq:rabbitmq \
     /plugins/rabbitmq_delayed_message_exchange-4.2.0.ez \
     /plugins/rabbitmq_delayed_message_exchange-4.2.0.ez
 
-# Enable the plugin during build
+# Enable the plugin at build time (offline).
 RUN rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange
 
-# Expose the standard RabbitMQ ports
-# 5672 - AMQP port
-# 15672 - Management UI port
+# 5672 = AMQP, 15672 = Management UI.
+# Runtime config (hosts entry, management bind, metrics) is applied by
+# the Railway start command in railway.json — keep the image stock.
 EXPOSE 5672 15672
