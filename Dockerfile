@@ -17,7 +17,7 @@ COPY --from=builder --chown=rabbitmq:rabbitmq \
     /plugins/rabbitmq_delayed_message_exchange-4.2.0.ez
 
 # Enable the plugin at build time (offline).
-RUN rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange
+RUN rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange rabbitmq_shovel rabbitmq_shovel_management
 
 # 5672 = AMQP, 15672 = Management UI.
 # Runtime config (hosts entry, management bind, metrics) is applied by
